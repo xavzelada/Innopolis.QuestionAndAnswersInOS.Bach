@@ -3,7 +3,7 @@
 #include <sys/ipc.h>
 #include <sys/msg.h>
 #include "time.h"
-#define BUF_SIZE 10
+#define BUF_SIZE 3
 #define MSGKEY 75
 
 void childProcess() {
@@ -18,16 +18,9 @@ void childProcess() {
         msg.mbuf[i]=i+1;
         sleep(1);
     }
-    //printf("Data is ready\n");
-    //sleep(2);
+    //Data is ready
     msgsnd(msgid, &msg, sizeof(msg), 0);
     msgctl(msgid, IPC_RMID, 0);
-    /*
-    for (long i=0; i<BUF_SIZE; i++) {
-        msg.mbuf[i]=i+10;
-        //sleep(1);
-    }
-    msgsnd(msgid, &msg, sizeof(msg), 0);*/
 }
 
 void parentProcess() {
@@ -40,36 +33,21 @@ void parentProcess() {
     msgrcv(msgid, &msg, sizeof(msg), 1, 0);
     for (long i=0; i<BUF_SIZE; i++) {
         printf("%ld ",msg.mbuf[i]);
-        //msg.mbuf[i]=-1;
-        //sleep(2);
     }
-/*
-    msgrcv(msgid, &msg, sizeof(msg), 1, 0);/
-    msgctl(msgid, IPC_RMID, 0);
-    for (long i=0; i<BUF_SIZE; i++) {
-        printf("%ld ",msg.mbuf[i]);
-        msg.mbuf[i]=-1;
-        //sleep(2);
-    }
-*/
 }
 
 
 int main() {
+    unsigned int work_time=0;
     unsigned int start_time =  clock();
     if (fork()==0) {
-        //unsigned int start_time =  clock();
         childProcess();
-        //unsigned int end_time = clock();
-        //unsigned int work_time = end_time - start_time;
-        //printf("\nChild Work Time : %d\n",work_time);
         return 0;
     } else {
         sleep(1);
         parentProcess();
     }
     unsigned int end_time = clock();
-    unsigned int work_time = end_time - start_time;
+    work_time += end_time - start_time;
     printf("\nWork Time : %d\n",work_time);
-    return 0;
 }
